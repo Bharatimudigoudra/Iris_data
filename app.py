@@ -11,9 +11,9 @@ from pymongo.server_api import ServerApi
 uri = "mongodb+srv://bharatimudigoudra912000:912000@cluster0.no155.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
-# create a database 
-db = client['student']
-# In mongodb data collection 
+# Create a database 
+db = client['Iris_dataset_class_prediction']
+# In MongoDB data collection 
 collection = db["Iris_data"]
 
 
@@ -35,10 +35,12 @@ def load_models():
             print(f"Warning: {file_name} not found. Skipping {model_name}.")
     return models
 
+
 def predict(model, data):
     df = pd.DataFrame([data])  # Convert user input to DataFrame
     prediction = model.predict(df)  # Directly predict without scaling
     return prediction
+
 
 def main():
     st.title("Iris Flower Classification")
@@ -58,16 +60,21 @@ def main():
             "sepal length (cm)": sepal_length,
             "sepal width (cm)": sepal_width,
             "petal length (cm)": petal_length,
-            "petal width (cm)": petal_width
+            "petal width (cm)": petal_width,
+            "model used": model_selection  # Store model name
         }
         
         prediction = predict(selected_model, user_data)
         iris_data = load_iris()
         predicted_class = iris_data.target_names[prediction[0]]
+        user_data["predicted class"] = predicted_class  # Store predicted class
+        
         st.success(f"Predicted Iris Class: {predicted_class}")
+        collection.insert_one(user_data)  # Insert data into MongoDB
     
     if st.sidebar.button("Select Model"):
         st.sidebar.success(f"You selected {model_selection}")
+
 
 if __name__ == "__main__":
     main()
