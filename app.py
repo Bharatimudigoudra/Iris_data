@@ -38,8 +38,14 @@ def load_models():
 
 def predict(model, data):
     df = pd.DataFrame([data])  # Convert user input to DataFrame
+    
+    # Remove any extra columns not used during training
+    if "model used" in df.columns:
+        df = df.drop(columns=["model used"])
+    
     prediction = model.predict(df)  # Directly predict without scaling
     return prediction
+
 
 
 def main():
